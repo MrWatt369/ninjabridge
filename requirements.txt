@@ -1,0 +1,8 @@
+mss
+keyboard
+google-genai
+openai
+requests
+anthropic
+Pillow
+customtkinter
