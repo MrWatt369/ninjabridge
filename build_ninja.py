@@ -31,13 +31,24 @@ def build():
     # --noconsole: no popup window
     # --uac-admin: not needed for HKCU but could be useful? No, better without it for stealth.
     
+    # Resolve customtkinter path for the build
+    import customtkinter
+    ctk_path = os.path.dirname(customtkinter.__file__)
+    
     cmd = [
-        "pyinstaller",
+        sys.executable, "-m", "PyInstaller",
         "--noconsole",
         "--onefile",
         f"--name={output_name}",
         "--clean",
-        "--collect-all", "customtkinter"
+        "--collect-all", "customtkinter",
+        f"--paths={os.path.dirname(ctk_path)}",
+        "--exclude-module", "torch",
+        "--exclude-module", "numpy",
+        "--exclude-module", "pandas",
+        "--exclude-module", "matplotlib",
+        "--exclude-module", "scipy",
+        "--exclude-module", "notebook"
     ]
     
     if icon_path and os.path.exists(icon_path):
