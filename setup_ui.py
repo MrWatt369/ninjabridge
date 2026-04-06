@@ -160,7 +160,7 @@ class SetupApp(ctk.CTk):
         ctk.CTkLabel(f, text="Core Settings", font=("Outfit", 32, "bold"), text_color=TEXT_COLOR).pack(pady=(0, 30), anchor="w")
         
         ai_card = self._card_section(f, "ARTIFICIAL INTELLIGENCE CORE")
-        self.ai_prov = ctk.CTkComboBox(ai_card, values=["gemini", "openai", "anthropic", "openrouter", "nvidia"], width=180, font=("Inter", 12))
+        self.ai_prov = ctk.CTkComboBox(ai_card, values=["gemini", "openai", "anthropic", "openrouter", "nvidia", "moonshot", "custom"], width=180, font=("Inter", 12))
         self.ai_prov.set(self.config.get("ai_provider", "gemini"))
         self.ai_prov.pack(side="left", padx=(0, 10))
         
@@ -173,6 +173,11 @@ class SetupApp(ctk.CTk):
         key_v = self.config.get("ai_api_key", "")
         if key_v: self.ai_key.insert(0, key_v)
         self.ai_key.pack(pady=10, anchor="w")
+
+        self.ai_url = ctk.CTkEntry(f, placeholder_text="Custom API Base URL (For 'custom' provider, e.g. https://api.moonshot.cn/v1)", width=600, height=40)
+        url_v = self.config.get("ai_base_url", "")
+        if url_v: self.ai_url.insert(0, url_v)
+        self.ai_url.pack(pady=10, anchor="w")
 
         msg_card = self._card_section(f, "COMMUNICATION BRIDGE")
         self.br_prov = ctk.CTkComboBox(msg_card, values=["telegram", "discord"], width=180)
@@ -352,6 +357,7 @@ class SetupApp(ctk.CTk):
     def save_general(self):
         self.config.update({
             "ai_provider": self.ai_prov.get(), "ai_api_key": self.ai_key.get(), "ai_model": self.ai_model.get(),
+            "ai_base_url": self.ai_url.get(),
             "bridge_provider": self.br_prov.get(), "telegram_bot_token": self.br_token.get(),
             "telegram_chat_id": self.br_id.get(), "kill_switch": self.kill_hk_entry.get() or "ctrl+alt+k"
         })

@@ -14,7 +14,7 @@ def send_to_telegram(bot_token, chat_id, message, photo_path=None):
             with open(photo_path, "rb") as photo:
                 files = {"photo": photo}
                 payload = {"chat_id": chat_id, "caption": caption}
-                response = requests.post(url, data=payload, files=files)
+                response = requests.post(url, data=payload, files=files, timeout=15)
                 response.raise_for_status()
                 
                 # If message was truncated, send the rest as a text message
@@ -29,7 +29,7 @@ def send_to_telegram(bot_token, chat_id, message, photo_path=None):
         url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
         payload = {"chat_id": chat_id, "text": message}
         try:
-            response = requests.post(url, json=payload)
+            response = requests.post(url, json=payload, timeout=15)
             response.raise_for_status()
             return True
         except Exception as e:
@@ -45,7 +45,7 @@ def send_to_discord(webhook_url, message, photo_path=None):
             with open(photo_path, "rb") as photo:
                 files = {"file": photo}
                 payload = {"content": message[:2000]} # Discord character limit is 2000
-                response = requests.post(webhook_url, data=payload, files=files)
+                response = requests.post(webhook_url, data=payload, files=files, timeout=15)
                 response.raise_for_status()
                 
                 if len(message) > 2000:
@@ -58,7 +58,7 @@ def send_to_discord(webhook_url, message, photo_path=None):
     else:
         payload = {"content": message[:2000]}
         try:
-            response = requests.post(webhook_url, json=payload)
+            response = requests.post(webhook_url, json=payload, timeout=15)
             response.raise_for_status()
             return True
         except Exception as e:

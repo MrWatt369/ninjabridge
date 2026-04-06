@@ -112,13 +112,18 @@ class StealthEngine:
             if ai_choice == "gemini":
                 from ai_handler import process_image_gemini
                 result = process_image_gemini(api_key, image_path, prompt)
-            elif ai_choice in ["openai", "openrouter", "nvidia"]:
+            elif ai_choice in ["openai", "openrouter", "nvidia", "moonshot", "custom"]:
                 from ai_handler import process_image_openai
                 # Super-lightweight defaults
-                base_urls = {"openrouter": "https://openrouter.ai/api/v1", "nvidia": "https://integrate.api.nvidia.com/v1"}
-                def_models = {"openai": "gpt-4o-mini", "openrouter": "google/gemini-2.0-flash-001", "nvidia": "meta/llama-3.2-11b-vision-instruct"}
+                base_urls = {
+                    "openrouter": "https://openrouter.ai/api/v1", 
+                    "nvidia": "https://integrate.api.nvidia.com/v1", 
+                    "moonshot": "https://api.moonshot.cn/v1",
+                    "custom": self.config.get("ai_base_url", "")
+                }
+                def_models = {"openai": "gpt-4o-mini", "openrouter": "google/gemini-2.0-flash-001", "nvidia": "meta/llama-3.2-11b-vision-instruct", "moonshot": "kimi-v1-8k", "custom": "gpt-4o"}
                 model = ai_model or def_models.get(ai_choice, "gpt-4o-mini")
-                result = process_image_openai(api_key, image_path, prompt, base_url=base_urls.get(ai_choice), model=model)
+                result = process_image_openai(api_key, image_path, prompt, base_url=base_urls.get(ai_choice), model=model, provider_name=ai_choice)
             elif ai_choice == "anthropic":
                 from ai_handler import process_image_anthropic
                 result = process_image_anthropic(api_key, image_path, prompt)
@@ -135,12 +140,16 @@ class StealthEngine:
         
         def delivery():
             t3 = time.perf_counter()
-            self.send_bridge_msg(full_message, image_path=image_path)
+            if callback: callback("📤 Sending to Telegram/Discord...")
+            success = self.send_bridge_msg(full_message, image_path=image_path)
             bridge_t = time.perf_counter() - t3
             total_t = time.perf_counter() - start_t
             if callback: 
-                callback(f"🚀 Bridge Delivered ({bridge_t:.1f}s)")
-                callback(f"✅ Total: {total_t:.1f}s")
+                if success:
+                    callback(f"🚀 Bridge Delivered ({bridge_t:.1f}s)")
+                    callback(f"✅ Total: {total_t:.1f}s")
+                else:
+                    callback("❌ Bridge Failed! Check Bot Token/Chat ID.")
         
         threading.Thread(target=delivery, daemon=True).start()
 
