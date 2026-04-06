@@ -36,7 +36,8 @@ def build():
         "--noconsole",
         "--onefile",
         f"--name={output_name}",
-        "--clean"
+        "--clean",
+        "--collect-all", "customtkinter"
     ]
     
     if icon_path and os.path.exists(icon_path):
